@@ -5,79 +5,33 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>教科書展示会 当番表</title>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --pink: #FF6B9D; --purple: #C77DFF; --mint: #4CC9A0;
-  --peach: #FF9A6C; --sky: #74C0FC;
-}
-body {
-  font-family: 'Zen Maru Gothic', sans-serif;
-  background: linear-gradient(135deg, #FFE8F4 0%, #F0EEFF 50%, #E8F4FF 100%);
-  min-height: 100vh; padding: 16px;
-}
-
-/* タブ */
+:root { --pink: #FF6B9D; --purple: #C77DFF; --mint: #4CC9A0; --peach: #FF9A6C; --sky: #74C0FC; }
+body { font-family: 'Zen Maru Gothic', sans-serif; background: linear-gradient(135deg, #FFE8F4 0%, #F0EEFF 50%, #E8F4FF 100%); min-height: 100vh; padding: 16px; }
 .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
-.tab-btn {
-  flex: 1; padding: 12px; border: none; border-radius: 14px;
-  font-family: 'Zen Maru Gothic', sans-serif;
-  font-size: 14px; font-weight: 900; cursor: pointer;
-  transition: all 0.2s;
-}
-.tab-btn.active {
-  background: linear-gradient(135deg, #FF6B9D, #C77DFF);
-  color: white; box-shadow: 0 4px 14px rgba(255,107,157,0.35);
-}
+.tab-btn { flex: 1; padding: 12px; border: none; border-radius: 14px; font-family: 'Zen Maru Gothic', sans-serif; font-size: 14px; font-weight: 900; cursor: pointer; transition: all 0.2s; }
+.tab-btn.active { background: linear-gradient(135deg, #FF6B9D, #C77DFF); color: white; box-shadow: 0 4px 14px rgba(255,107,157,0.35); }
 .tab-btn.inactive { background: white; color: #9CA3AF; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
 .tab-content { display: none; }
 .tab-content.active { display: block; }
-
-/* ヘッダー */
-.app-header {
-  text-align: center; padding: 20px 16px 16px;
-  background: white; border-radius: 24px;
-  margin-bottom: 16px;
-  box-shadow: 0 4px 20px rgba(255,107,157,0.15);
-  position: relative; overflow: hidden;
-}
-.app-header::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px;
-  background: linear-gradient(90deg, var(--pink), var(--purple), var(--sky), var(--mint));
-}
-.app-title {
-  font-size: 20px; font-weight: 900;
-  background: linear-gradient(135deg, var(--pink), var(--purple));
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  margin-bottom: 4px;
-}
+.app-header { text-align: center; padding: 20px 16px 16px; background: white; border-radius: 24px; margin-bottom: 16px; box-shadow: 0 4px 20px rgba(255,107,157,0.15); position: relative; overflow: hidden; }
+.app-header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px; background: linear-gradient(90deg, var(--pink), var(--purple), var(--sky), var(--mint)); }
+.app-title { font-size: 20px; font-weight: 900; background: linear-gradient(135deg, var(--pink), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px; }
 .app-subtitle { font-size: 11px; color: #9CA3AF; }
 .deco-row { display: flex; justify-content: center; gap: 6px; margin-top: 8px; }
 .deco-dot { width: 7px; height: 7px; border-radius: 50%; }
-
-/* 凡例 */
-.legend {
-  display: flex; gap: 8px; flex-wrap: wrap;
-  justify-content: center; margin-bottom: 14px;
-  padding: 10px 14px; background: white;
-  border-radius: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-}
+.save-bar { text-align: center; padding: 8px; background: #F0FFF4; border-radius: 10px; margin-bottom: 12px; font-size: 11px; font-weight: 700; color: #38A169; border: 1px solid #C6F6D5; }
+.save-bar.saving { background: #FFFBEB; color: #D97706; border-color: #FEF3C7; }
+.save-bar.error { background: #FFF5F5; color: #E53E3E; border-color: #FED7D7; }
+.legend { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 14px; padding: 10px 14px; background: white; border-radius: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
 .legend-item { display: flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 700; color: #4B5563; }
 .legend-dot { width: 9px; height: 9px; border-radius: 3px; }
-
-/* 月ヘッダー */
 .month-block { margin-bottom: 20px; }
-.month-header {
-  display: flex; align-items: center; gap: 10px;
-  margin-bottom: 10px; padding: 10px 16px;
-  border-radius: 16px; color: white;
-  font-size: 15px; font-weight: 900;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.15);
-}
-.june-header  { background: linear-gradient(135deg, #FF6B9D, #FF9A6C); }
-.july-header  { background: linear-gradient(135deg, #6C5CE7, #74C0FC); }
-
-/* カレンダーグリッド */
+.month-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; padding: 10px 16px; border-radius: 16px; color: white; font-size: 15px; font-weight: 900; box-shadow: 0 4px 14px rgba(0,0,0,0.15); }
+.june-header { background: linear-gradient(135deg, #FF6B9D, #FF9A6C); }
+.july-header { background: linear-gradient(135deg, #6C5CE7, #74C0FC); }
 .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
 .day-header { text-align: center; padding: 6px 2px; border-radius: 10px; font-size: 11px; font-weight: 900; }
 .dh-sun { background: #FFE8E8; color: #E74C3C; }
@@ -87,125 +41,46 @@ body {
 .dh-thu { background: #FFF8E8; color: #F59E0B; }
 .dh-fri { background: #F0E8FF; color: #8B5CF6; }
 .dh-sat { background: #E8F8FF; color: #0EA5E9; }
-
-.day-cell {
-  background: white; border-radius: 12px;
-  padding: 5px 4px; min-height: 88px;
-  border: 1.5px solid #F0F0F0;
-}
+.day-cell { background: white; border-radius: 12px; padding: 5px 4px; min-height: 88px; border: 1.5px solid #F0F0F0; }
 .day-cell.empty { background: #FAFAFA; border: 1.5px dashed #E5E7EB; }
 .day-cell.weekend-sun { background: #FFF5F5; border-color: #FECACA; }
 .day-cell.weekend-sat { background: #F0FAFF; border-color: #BAE6FD; }
 .day-cell.has-event { border: 2px solid #C4B5FD; box-shadow: 0 2px 8px rgba(196,181,253,0.25); }
 .day-num { font-size: 12px; font-weight: 900; margin-bottom: 3px; line-height: 1; }
-.num-sun { color: #EF4444; } .num-sat { color: #0EA5E9; }
-.num-wd  { color: #374151; } .num-dim { color: #D1D5DB; font-weight: 500; font-size: 11px; }
-
-/* スロット */
+.num-sun { color: #EF4444; } .num-sat { color: #0EA5E9; } .num-wd { color: #374151; } .num-dim { color: #D1D5DB; font-weight: 500; font-size: 11px; }
 .slot { border-radius: 6px; padding: 3px 4px; margin-bottom: 2px; font-size: 9px; line-height: 1.3; cursor: pointer; transition: opacity 0.15s; }
 .slot:hover { opacity: 0.8; }
 .slot-label { font-weight: 900; font-size: 7.5px; display: block; margin-bottom: 1px; }
 .slot-names { font-weight: 700; color: #374151; }
 .slot-boshu { font-weight: 900; color: #EF4444; font-style: italic; }
-.slot-kata  { font-weight: 900; color: #D97706; }
-.s1 { background: #FFF3E8; border-left: 3px solid #FF8C42; }
-.s1 .slot-label { color: #EA580C; }
-.s2 { background: #EDFFF6; border-left: 3px solid #2ECC71; }
-.s2 .slot-label { color: #16A34A; }
-.s3 { background: #F3EDFF; border-left: 3px solid #9B59B6; }
-.s3 .slot-label { color: #7C3AED; }
-.sk { background: #FFFBEB; border-left: 3px solid #F59E0B; }
-.sk .slot-label { color: #B45309; }
-
-/* モーダル */
-.modal-overlay {
-  display: none; position: fixed; inset: 0;
-  background: rgba(0,0,0,0.4); z-index: 100;
-  align-items: center; justify-content: center;
-}
+.slot-kata { font-weight: 900; color: #D97706; }
+.s1 { background: #FFF3E8; border-left: 3px solid #FF8C42; } .s1 .slot-label { color: #EA580C; }
+.s2 { background: #EDFFF6; border-left: 3px solid #2ECC71; } .s2 .slot-label { color: #16A34A; }
+.s3 { background: #F3EDFF; border-left: 3px solid #9B59B6; } .s3 .slot-label { color: #7C3AED; }
+.sk { background: #FFFBEB; border-left: 3px solid #F59E0B; } .sk .slot-label { color: #B45309; }
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; align-items: center; justify-content: center; }
 .modal-overlay.show { display: flex; }
-.modal {
-  background: white; border-radius: 24px;
-  padding: 24px; width: 90%; max-width: 360px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-  position: relative;
-}
-.modal-title {
-  font-size: 15px; font-weight: 900; color: #2D3436;
-  margin-bottom: 4px;
-}
+.modal { background: white; border-radius: 24px; padding: 24px; width: 90%; max-width: 360px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+.modal-title { font-size: 15px; font-weight: 900; color: #2D3436; margin-bottom: 4px; }
 .modal-sub { font-size: 11px; color: #9CA3AF; margin-bottom: 16px; }
-.modal-current {
-  background: #F8F9FA; border-radius: 10px;
-  padding: 10px 12px; margin-bottom: 14px;
-  font-size: 12px; color: #374151; font-weight: 700;
-}
+.modal-current { background: #F8F9FA; border-radius: 10px; padding: 10px 12px; margin-bottom: 14px; font-size: 12px; color: #374151; font-weight: 700; }
 .modal-label { font-size: 11px; font-weight: 900; color: #6B7280; margin-bottom: 6px; }
-.modal-input {
-  width: 100%; padding: 10px 12px;
-  border: 2px solid #E5E7EB; border-radius: 12px;
-  font-family: 'Zen Maru Gothic', sans-serif;
-  font-size: 13px; color: #374151;
-  outline: none; transition: border-color 0.2s;
-  margin-bottom: 12px;
-}
+.modal-input { width: 100%; padding: 10px 12px; border: 2px solid #E5E7EB; border-radius: 12px; font-family: 'Zen Maru Gothic', sans-serif; font-size: 13px; color: #374151; outline: none; transition: border-color 0.2s; margin-bottom: 12px; }
 .modal-input:focus { border-color: #C77DFF; }
 .modal-btns { display: flex; gap: 8px; }
-.btn-cancel {
-  flex: 1; padding: 10px; border: 2px solid #E5E7EB;
-  border-radius: 12px; background: white;
-  font-family: 'Zen Maru Gothic', sans-serif;
-  font-size: 13px; font-weight: 700; color: #6B7280;
-  cursor: pointer;
-}
-.btn-save {
-  flex: 2; padding: 10px; border: none;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #FF6B9D, #C77DFF);
-  font-family: 'Zen Maru Gothic', sans-serif;
-  font-size: 13px; font-weight: 900; color: white;
-  cursor: pointer; box-shadow: 0 4px 12px rgba(255,107,157,0.3);
-}
-.btn-clear {
-  flex: 1; padding: 10px; border: 2px solid #FECACA;
-  border-radius: 12px; background: white;
-  font-family: 'Zen Maru Gothic', sans-serif;
-  font-size: 13px; font-weight: 700; color: #EF4444;
-  cursor: pointer;
-}
-
-/* 担当者タブ */
-.staff-header {
-  background: white; border-radius: 24px;
-  padding: 20px 16px 16px; margin-bottom: 14px;
-  box-shadow: 0 4px 20px rgba(255,107,157,0.12);
-  position: relative; overflow: hidden; text-align: center;
-}
-.staff-header::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px;
-  background: linear-gradient(90deg, #FF6B9D, #C77DFF, #74C0FC, #4CC9A0, #FF9A6C);
-}
-.staff-title {
-  font-size: 20px; font-weight: 900;
-  background: linear-gradient(135deg, #FF6B9D, #C77DFF);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  margin-bottom: 3px;
-}
+.btn-cancel { flex: 1; padding: 10px; border: 2px solid #E5E7EB; border-radius: 12px; background: white; font-family: 'Zen Maru Gothic', sans-serif; font-size: 13px; font-weight: 700; color: #6B7280; cursor: pointer; }
+.btn-save { flex: 2; padding: 10px; border: none; border-radius: 12px; background: linear-gradient(135deg, #FF6B9D, #C77DFF); font-family: 'Zen Maru Gothic', sans-serif; font-size: 13px; font-weight: 900; color: white; cursor: pointer; }
+.btn-clear { flex: 1; padding: 10px; border: 2px solid #FECACA; border-radius: 12px; background: white; font-family: 'Zen Maru Gothic', sans-serif; font-size: 13px; font-weight: 700; color: #EF4444; cursor: pointer; }
+.staff-header { background: white; border-radius: 24px; padding: 20px 16px 16px; margin-bottom: 14px; box-shadow: 0 4px 20px rgba(255,107,157,0.12); position: relative; overflow: hidden; text-align: center; }
+.staff-header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px; background: linear-gradient(90deg, #FF6B9D, #C77DFF, #74C0FC, #4CC9A0, #FF9A6C); }
+.staff-title { font-size: 20px; font-weight: 900; background: linear-gradient(135deg, #FF6B9D, #C77DFF); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 3px; }
 .staff-sub { font-size: 11px; color: #9CA3AF; }
 .summary { display: flex; gap: 10px; justify-content: center; margin-bottom: 14px; flex-wrap: wrap; }
 .summary-badge { background: white; border-radius: 14px; padding: 8px 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.07); text-align: center; }
 .summary-badge .num { font-size: 20px; font-weight: 900; background: linear-gradient(135deg, #FF6B9D, #C77DFF); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: block; }
 .summary-badge .lbl { font-size: 10px; color: #9CA3AF; font-weight: 700; }
-
 .staff-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-bottom: 16px; }
-.staff-card {
-  background: white; border-radius: 18px;
-  padding: 16px 12px; text-align: center;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-  position: relative; overflow: hidden;
-  border: 2px solid transparent;
-  transition: transform 0.15s;
-}
+.staff-card { background: white; border-radius: 18px; padding: 16px 12px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.06); position: relative; overflow: hidden; border: 2px solid transparent; transition: transform 0.15s; }
 .staff-card:hover { transform: translateY(-2px); }
 .staff-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; }
 .sc0::before { background: linear-gradient(90deg,#FF6B9D,#FF9A6C); } .sc0 { border-color:#FFE0EC; }
@@ -233,26 +108,15 @@ body {
 .sc5 .count-badge { background: linear-gradient(135deg,#FF6B9D,#C77DFF); }
 .sc6 .count-badge { background: linear-gradient(135deg,#4CC9A0,#FFD93D); }
 .count-lbl { font-size: 9px; color: #B2BEC3; font-weight: 700; }
-
 .app-footer { text-align: center; padding: 14px; font-size: 11px; color: #9CA3AF; }
-
-/* 編集ヒント */
-.edit-hint {
-  text-align: center; font-size: 11px; color: #C77DFF;
-  font-weight: 700; margin-bottom: 10px;
-  padding: 8px; background: #F8F0FF; border-radius: 10px;
-}
+.edit-hint { text-align: center; font-size: 11px; color: #C77DFF; font-weight: 700; margin-bottom: 10px; padding: 8px; background: #F8F0FF; border-radius: 10px; }
 </style>
 </head>
 <body>
-
-<!-- タブ -->
 <div class="tabs">
-  <button class="tab-btn active" onclick="showTab('calendar')">📅 当番カレンダー</button>
-  <button class="tab-btn inactive" onclick="showTab('staff')">👥 担当者一覧</button>
+  <button class="tab-btn active" onclick="showTab('calendar', event)">📅 当番カレンダー</button>
+  <button class="tab-btn inactive" onclick="showTab('staff', event)">👥 担当者一覧</button>
 </div>
-
-<!-- ===== カレンダータブ ===== -->
 <div id="tab-calendar" class="tab-content active">
   <div class="app-header">
     <div class="app-title">📚 教科書展示会 当番表</div>
@@ -265,9 +129,8 @@ body {
       <div class="deco-dot" style="background:#FF9A6C"></div>
     </div>
   </div>
-
-  <div class="edit-hint">✏️ スロットをタップして担当者を編集できます</div>
-
+  <div class="save-bar" id="save-bar">✅ データ読み込み中...</div>
+  <div class="edit-hint">✏️ スロットをタップして担当者を編集・保存できます</div>
   <div class="legend">
     <div class="legend-item"><div class="legend-dot" style="background:#FF8C42"></div>10〜12時</div>
     <div class="legend-item"><div class="legend-dot" style="background:#2ECC71"></div>13〜15時</div>
@@ -275,33 +138,28 @@ body {
     <div class="legend-item"><div class="legend-dot" style="background:#F59E0B"></div>片付け</div>
     <div class="legend-item"><div class="legend-dot" style="background:#EF4444"></div>募集中</div>
   </div>
-
   <div id="calendar-body"></div>
   <div class="app-footer">✿ 教科書展示会 2026 ✿</div>
 </div>
-
-<!-- ===== 担当者タブ ===== -->
 <div id="tab-staff" class="tab-content">
   <div class="staff-header">
     <div class="staff-title">👥 担当者一覧</div>
     <div class="staff-sub">名前順・担当コマ数（カレンダーと連動）</div>
   </div>
   <div class="summary">
-    <div class="summary-badge"><span class="num" id="total-staff">20</span><span class="lbl">担当者数</span></div>
+    <div class="summary-badge"><span class="num">20</span><span class="lbl">担当者数</span></div>
     <div class="summary-badge"><span class="num" id="total-slots">0</span><span class="lbl">総担当コマ数</span></div>
   </div>
   <div id="staff-grid" class="staff-grid"></div>
   <div class="app-footer">✿ 教科書展示会 2026 担当者一覧 ✿</div>
 </div>
-
-<!-- モーダル -->
 <div class="modal-overlay" id="modal">
   <div class="modal">
     <div class="modal-title" id="modal-title"></div>
     <div class="modal-sub" id="modal-sub"></div>
     <div class="modal-current" id="modal-current"></div>
-    <div class="modal-label">担当者名を入力（複数は半角スペースで区切る）</div>
-    <input class="modal-input" id="modal-input" type="text" placeholder="例: 山田花子　または　空欄で募集中" />
+    <div class="modal-label">担当者名を入力（複数はスペースで区切る）</div>
+    <input class="modal-input" id="modal-input" type="text" placeholder="例: 山田花子　空欄で募集中に戻す" />
     <div class="modal-btns">
       <button class="btn-clear" onclick="clearSlot()">募集中に戻す</button>
       <button class="btn-cancel" onclick="closeModal()">キャンセル</button>
@@ -309,262 +167,170 @@ body {
     </div>
   </div>
 </div>
-
 <script>
-// ===== データ =====
-const scheduleData = {
-  '6/15': [
-    { time: '10〜12時', cls: 's1', names: '小山皐月 大畑美里 加藤智美 廣嵜梢' },
-    { time: '13〜15時', cls: 's2', names: '池田案奈' },
-    { time: '15〜17時', cls: 's3', names: '大畑美里' },
-  ],
-  '6/16': [
-    { time: '10〜12時', cls: 's1', names: '大木茉美' },
-    { time: '13〜15時', cls: 's2', names: '滝澤美枝' },
-    { time: '15〜17時', cls: 's3', names: '' },
-  ],
-  '6/17': [
-    { time: '10〜12時', cls: 's1', names: '加藤智美' },
-    { time: '13〜15時', cls: 's2', names: '小山皐月' },
-    { time: '15〜17時', cls: 's3', names: '' },
-  ],
-  '6/18': [
-    { time: '10〜12時', cls: 's1', names: 'ホーフクソンナム' },
-    { time: '13〜15時', cls: 's2', names: '小山皐月' },
-    { time: '15〜17時', cls: 's3', names: '吉田絢加' },
-  ],
-  '6/19': [
-    { time: '10〜12時', cls: 's1', names: '伊藤由梨' },
-    { time: '13〜15時', cls: 's2', names: '須長裕子' },
-    { time: '15〜17時', cls: 's3', names: '' },
-  ],
-  '6/22': [
-    { time: '10〜12時', cls: 's1', names: '浅見志穂' },
-    { time: '13〜15時', cls: 's2', names: '渡辺ひろみ' },
-    { time: '15〜17時', cls: 's3', names: '大畑美里' },
-  ],
-  '6/23': [
-    { time: '10〜12時', cls: 's1', names: 'ホーフクソンナム' },
-    { time: '13〜15時', cls: 's2', names: '関戸智恵美' },
-    { time: '15〜17時', cls: 's3', names: '関戸智恵美' },
-  ],
-  '6/24': [
-    { time: '10〜12時', cls: 's1', names: '伊藤由梨' },
-    { time: '13〜15時', cls: 's2', names: '小山皐月' },
-    { time: '15〜17時', cls: 's3', names: '加藤智美' },
-  ],
-  '6/25': [
-    { time: '10〜12時', cls: 's1', names: '大木茉美' },
-    { time: '13〜15時', cls: 's2', names: '池田案奈' },
-    { time: '15〜17時', cls: 's3', names: '小山皐月' },
-  ],
-  '6/26': [
-    { time: '10〜12時', cls: 's1', names: '佐藤晶' },
-    { time: '13〜15時', cls: 's2', names: '大畑美里' },
-    { time: '15〜17時', cls: 's3', names: '' },
-  ],
-  '6/29': [
-    { time: '10〜12時', cls: 's1', names: '佐藤晶' },
-    { time: '13〜15時', cls: 's2', names: '渡辺ひろみ' },
-    { time: '15〜17時', cls: 's3', names: '大畑美里' },
-  ],
-  '6/30': [
-    { time: '10〜12時', cls: 's1', names: '松本理紗' },
-    { time: '13〜15時', cls: 's2', names: '松本理紗' },
-    { time: '15〜17時', cls: 's3', names: '野林千里' },
-  ],
-  '7/1': [
-    { time: '10〜12時', cls: 's1', names: '木村晶子' },
-    { time: '13〜15時', cls: 's2', names: '小山皐月' },
-    { time: '15〜17時', cls: 's3', names: '野林千里' },
-  ],
-  '7/2': [
-    { time: '10〜12時', cls: 's1', names: '廣嵜梢' },
-    { time: '13〜15時', cls: 's2', names: '小山皐月' },
-    { time: '15〜17時', cls: 's3', names: '大下晃江' },
-  ],
-  '7/3': [
-    { time: '10〜12時', cls: 'sk', names: '小山皐月 大畑美里 須長裕子 木村晶子' },
-    { time: '午後', cls: 'sk', names: '📦片付けのため当番なし', fixed: true },
-  ],
+const SUPABASE_URL = 'https://vovfyyemmvpoucfvfezg.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvdmZ5eWVtbXZwb3VjZnZmZXpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4MzIzMDIsImV4cCI6MjA5NDQwODMwMn0.Rlp2BWkqapRdk-4MkcCzOtAYfGRtQt1iwW7g73PohWk';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const initialData = {
+  '6/15': [{time:'10〜12時',cls:'s1',names:'小山皐月 大畑美里 加藤智美 廣嵜梢'},{time:'13〜15時',cls:'s2',names:'池田案奈'},{time:'15〜17時',cls:'s3',names:'大畑美里'}],
+  '6/16': [{time:'10〜12時',cls:'s1',names:'大木茉美'},{time:'13〜15時',cls:'s2',names:'滝澤美枝'},{time:'15〜17時',cls:'s3',names:''}],
+  '6/17': [{time:'10〜12時',cls:'s1',names:'加藤智美'},{time:'13〜15時',cls:'s2',names:'小山皐月'},{time:'15〜17時',cls:'s3',names:''}],
+  '6/18': [{time:'10〜12時',cls:'s1',names:'ホーフクソンナム'},{time:'13〜15時',cls:'s2',names:'小山皐月'},{time:'15〜17時',cls:'s3',names:'吉田絢加'}],
+  '6/19': [{time:'10〜12時',cls:'s1',names:'伊藤由梨'},{time:'13〜15時',cls:'s2',names:'須長裕子'},{time:'15〜17時',cls:'s3',names:''}],
+  '6/22': [{time:'10〜12時',cls:'s1',names:'浅見志穂'},{time:'13〜15時',cls:'s2',names:'渡辺ひろみ'},{time:'15〜17時',cls:'s3',names:'大畑美里'}],
+  '6/23': [{time:'10〜12時',cls:'s1',names:'ホーフクソンナム'},{time:'13〜15時',cls:'s2',names:'関戸智恵美'},{time:'15〜17時',cls:'s3',names:'関戸智恵美'}],
+  '6/24': [{time:'10〜12時',cls:'s1',names:'伊藤由梨'},{time:'13〜15時',cls:'s2',names:'小山皐月'},{time:'15〜17時',cls:'s3',names:'加藤智美'}],
+  '6/25': [{time:'10〜12時',cls:'s1',names:'大木茉美'},{time:'13〜15時',cls:'s2',names:'池田案奈'},{time:'15〜17時',cls:'s3',names:'小山皐月'}],
+  '6/26': [{time:'10〜12時',cls:'s1',names:'佐藤晶'},{time:'13〜15時',cls:'s2',names:'大畑美里'},{time:'15〜17時',cls:'s3',names:''}],
+  '6/29': [{time:'10〜12時',cls:'s1',names:'佐藤晶'},{time:'13〜15時',cls:'s2',names:'渡辺ひろみ'},{time:'15〜17時',cls:'s3',names:'大畑美里'}],
+  '6/30': [{time:'10〜12時',cls:'s1',names:'松本理紗'},{time:'13〜15時',cls:'s2',names:'松本理紗'},{time:'15〜17時',cls:'s3',names:'野林千里'}],
+  '7/1':  [{time:'10〜12時',cls:'s1',names:'木村晶子'},{time:'13〜15時',cls:'s2',names:'小山皐月'},{time:'15〜17時',cls:'s3',names:'野林千里'}],
+  '7/2':  [{time:'10〜12時',cls:'s1',names:'廣嵜梢'},{time:'13〜15時',cls:'s2',names:'小山皐月'},{time:'15〜17時',cls:'s3',names:'大下晃江'}],
+  '7/3':  [{time:'10〜12時',cls:'sk',names:'小山皐月 大畑美里 須長裕子 木村晶子'},{time:'午後',cls:'sk',names:'📦片付けのため当番なし',fixed:true}],
 };
+let scheduleData = JSON.parse(JSON.stringify(initialData));
+const staffMaster = ['浅見志穂','池田案奈','伊藤由梨','大木茉美','大下晃江','大畑美里','加藤智美','関戸智恵美','小山皐月','佐藤晶','須長裕子','滝澤美枝','廣嵜梢','ホーフクソンナム','松本理紗','木村晶子','野林千里','渡辺ひろみ','吉田絢加','福島希美'];
+const cal6 = [[0,1,2,3,4,5,6],[7,8,9,10,11,12,13],[14,15,16,17,18,19,20],[21,22,23,24,25,26,27],[28,29,30,0,0,0,0]];
+const cal7 = [[0,0,0,1,2,3,4],[5,6,7,8,9,10,11]];
+let editTarget = null;
 
-// 担当者マスター（名前順）
-const staffMaster = [
-  '浅見志穂','池田案奈','伊藤由梨','大木茉美','大下晃江',
-  '大畑美里','加藤智美','関戸智恵美','小山皐月','佐藤晶',
-  '須長裕子','滝澤美枝','廣嵜梢','ホーフクソンナム',
-  '松本理紗','木村晶子','野林千里','渡辺ひろみ','吉田絢加','福島希美'
-];
-
-// カレンダー構造（日曜始まり）
-// 6月: 1=月 → 空・1〜6
-const cal6 = [
-  [0,1,2,3,4,5,6],[7,8,9,10,11,12,13],[14,15,16,17,18,19,20],
-  [21,22,23,24,25,26,27],[28,29,30,0,0,0,0]
-];
-// 7月: 1=水 → 空・空・空・1〜4
-const cal7 = [
-  [0,0,0,1,2,3,4],[5,6,7,8,9,10,11]
-];
-
-let editTarget = null; // {dateKey, slotIndex}
-
-// ===== カレンダー描画 =====
-function renderCalendar() {
-  const body = document.getElementById('calendar-body');
-  body.innerHTML = '';
-
-  body.innerHTML += renderMonth('6月', 'june-header', '🌸', 6, cal6);
-  body.innerHTML += renderMonth('7月', 'july-header', '🌟', 7, cal7);
+async function loadFromSupabase() {
+  setSaveBar('loading','⏳ データを読み込み中...');
+  try {
+    const {data,error} = await sb.from('schedule').select('*');
+    if(error) throw error;
+    if(data && data.length>0) data.forEach(row=>{
+      if(scheduleData[row.date_key]&&scheduleData[row.date_key][row.slot_index])
+        scheduleData[row.date_key][row.slot_index].names=row.names;
+    });
+    setSaveBar('ok','✅ 最新データを読み込みました');
+    renderCalendar(); renderStaff();
+  } catch(e) {
+    setSaveBar('error','⚠️ データ読み込みエラー（オフライン表示）');
+    renderCalendar(); renderStaff();
+  }
 }
 
-function renderMonth(label, headerCls, icon, month, cal) {
-  const days = ['日','月','火','水','木','金','土'];
-  const dhCls = ['dh-sun','dh-mon','dh-tue','dh-wed','dh-thu','dh-fri','dh-sat'];
-  const numCls = ['num-sun','num-wd','num-wd','num-wd','num-wd','num-wd','num-sat'];
+async function saveToSupabase(dateKey,slotIndex,names) {
+  setSaveBar('saving','💾 保存中...');
+  try {
+    const id=`${dateKey}_${slotIndex}`;
+    const {error}=await sb.from('schedule').upsert({id,date_key:dateKey,slot_index:slotIndex,names,updated_at:new Date().toISOString()});
+    if(error) throw error;
+    setSaveBar('ok','✅ 保存しました！全員に反映されます');
+  } catch(e) { setSaveBar('error','⚠️ 保存エラー。再度お試しください'); }
+}
 
-  let html = `<div class="month-block">
-    <div class="month-header ${headerCls}"><span style="font-size:18px">${icon}</span> ${label}</div>
-    <div class="calendar-grid">`;
+function setSaveBar(type,msg) {
+  const bar=document.getElementById('save-bar');
+  bar.textContent=msg; bar.className='save-bar';
+  if(type==='saving') bar.classList.add('saving');
+  if(type==='error') bar.classList.add('error');
+}
 
-  days.forEach((d,i) => html += `<div class="day-header ${dhCls[i]}">${d}</div>`);
+function renderCalendar() {
+  const body=document.getElementById('calendar-body');
+  body.innerHTML='';
+  body.innerHTML+=renderMonth('6月','june-header','🌸',6,cal6);
+  body.innerHTML+=renderMonth('7月','july-header','🌟',7,cal7);
+}
 
-  cal.forEach(week => {
-    week.forEach((day, di) => {
-      if (day === 0) { html += `<div class="day-cell empty"></div>`; return; }
-      const dateKey = `${month}/${day}`;
-      const slots = scheduleData[dateKey];
-      const isWkSun = di === 0;
-      const isWkSat = di === 6;
-      const hasSched = !!slots;
-      let cellCls = 'day-cell';
-      if (isWkSun) cellCls += ' weekend-sun';
-      else if (isWkSat) cellCls += ' weekend-sat';
-      else if (hasSched) cellCls += ' has-event';
-      const nc = isWkSun ? 'num-sun' : isWkSat ? 'num-sat' : hasSched ? 'num-wd' : 'num-dim';
-
-      html += `<div class="${cellCls}"><div class="day-num ${nc}">${day}</div>`;
-      if (slots) {
-        slots.forEach((slot, si) => {
-          const isEmpty = !slot.names || slot.names === '';
-          const isFixed = slot.fixed;
-          const onclick = isFixed ? '' : `onclick="openModal('${dateKey}',${si})"`;
-          html += `<div class="slot ${slot.cls}" ${onclick}>
-            <span class="slot-label">${slot.time}</span>`;
-          if (isEmpty) html += `<span class="slot-boshu">● 募集中</span>`;
-          else if (slot.cls === 'sk') html += `<span class="slot-kata">${slot.names}</span>`;
-          else html += `<span class="slot-names">${slot.names}</span>`;
-          html += `</div>`;
-        });
-      }
-      html += `</div>`;
+function renderMonth(label,headerCls,icon,month,cal) {
+  const days=['日','月','火','水','木','金','土'];
+  const dhCls=['dh-sun','dh-mon','dh-tue','dh-wed','dh-thu','dh-fri','dh-sat'];
+  let html=`<div class="month-block"><div class="month-header ${headerCls}"><span style="font-size:18px">${icon}</span> ${label}</div><div class="calendar-grid">`;
+  days.forEach((d,i)=>html+=`<div class="day-header ${dhCls[i]}">${d}</div>`);
+  cal.forEach(week=>{
+    week.forEach((day,di)=>{
+      if(day===0){html+=`<div class="day-cell empty"></div>`;return;}
+      const dateKey=`${month}/${day}`;
+      const slots=scheduleData[dateKey];
+      const isWkSun=di===0,isWkSat=di===6,hasSched=!!slots;
+      let cellCls='day-cell';
+      if(isWkSun) cellCls+=' weekend-sun';
+      else if(isWkSat) cellCls+=' weekend-sat';
+      else if(hasSched) cellCls+=' has-event';
+      const nc=isWkSun?'num-sun':isWkSat?'num-sat':hasSched?'num-wd':'num-dim';
+      html+=`<div class="${cellCls}"><div class="day-num ${nc}">${day}</div>`;
+      if(slots) slots.forEach((slot,si)=>{
+        const isEmpty=!slot.names||slot.names==='';
+        const onclick=slot.fixed?'':` onclick="openModal('${dateKey}',${si})"`;
+        html+=`<div class="slot ${slot.cls}"${onclick}><span class="slot-label">${slot.time}</span>`;
+        if(isEmpty) html+=`<span class="slot-boshu">● 募集中</span>`;
+        else if(slot.cls==='sk') html+=`<span class="slot-kata">${slot.names}</span>`;
+        else html+=`<span class="slot-names">${slot.names}</span>`;
+        html+=`</div>`;
+      });
+      html+=`</div>`;
     });
   });
-
-  html += `</div></div>`;
+  html+=`</div></div>`;
   return html;
 }
 
-// ===== 担当者一覧描画 =====
 function renderStaff() {
-  // カウント集計
-  const counts = {};
-  staffMaster.forEach(n => counts[n] = 0);
-
-  Object.values(scheduleData).forEach(slots => {
-    slots.forEach(slot => {
-      if (!slot.names || slot.fixed) return;
-      const names = slot.names.split(/\s+/).filter(Boolean);
-      names.forEach(n => {
-        if (counts[n] !== undefined) counts[n]++;
-        // マスターにない名前は無視（片付け等）
-      });
-    });
-  });
-
-  const totalSlots = Object.values(counts).reduce((a,b) => a+b, 0);
-  document.getElementById('total-slots').textContent = totalSlots;
-
-  const colorCls = ['sc0','sc1','sc2','sc3','sc4','sc5','sc6'];
-  const grid = document.getElementById('staff-grid');
-  grid.innerHTML = '';
-
-  staffMaster.forEach((name, i) => {
-    const cls = colorCls[i % colorCls.length];
-    const initial = name[0];
-    const count = counts[name] || 0;
-    const card = document.createElement('div');
-    card.className = `staff-card ${cls}`;
-    card.innerHTML = `
-      <div class="avatar">${initial}</div>
-      <div class="sname">${name}</div>
-      <div class="count-badge">${count} コマ</div>
-      <div class="count-lbl">担当回数</div>`;
+  const counts={};
+  staffMaster.forEach(n=>counts[n]=0);
+  Object.values(scheduleData).forEach(slots=>slots.forEach(slot=>{
+    if(!slot.names||slot.fixed) return;
+    slot.names.split(/\s+/).filter(Boolean).forEach(n=>{if(counts[n]!==undefined)counts[n]++;});
+  }));
+  document.getElementById('total-slots').textContent=Object.values(counts).reduce((a,b)=>a+b,0);
+  const colorCls=['sc0','sc1','sc2','sc3','sc4','sc5','sc6'];
+  const grid=document.getElementById('staff-grid');
+  grid.innerHTML='';
+  staffMaster.forEach((name,i)=>{
+    const cls=colorCls[i%colorCls.length];
+    const card=document.createElement('div');
+    card.className=`staff-card ${cls}`;
+    card.innerHTML=`<div class="avatar">${name[0]}</div><div class="sname">${name}</div><div class="count-badge">${counts[name]||0} コマ</div><div class="count-lbl">担当回数</div>`;
     grid.appendChild(card);
   });
 }
 
-// ===== モーダル =====
-function openModal(dateKey, slotIndex) {
-  editTarget = { dateKey, slotIndex };
-  const slot = scheduleData[dateKey][slotIndex];
-  document.getElementById('modal-title').textContent = `✏️ ${dateKey}（${slot.time}）`;
-  document.getElementById('modal-sub').textContent = '担当者を変更できます';
-  const cur = slot.names || '（募集中）';
-  document.getElementById('modal-current').textContent = `現在: ${cur}`;
-  document.getElementById('modal-input').value = slot.names || '';
+function openModal(dateKey,slotIndex) {
+  editTarget={dateKey,slotIndex};
+  const slot=scheduleData[dateKey][slotIndex];
+  document.getElementById('modal-title').textContent=`✏️ ${dateKey}（${slot.time}）`;
+  document.getElementById('modal-sub').textContent='担当者を変更できます';
+  document.getElementById('modal-current').textContent=`現在: ${slot.names||'（募集中）'}`;
+  document.getElementById('modal-input').value=slot.names||'';
   document.getElementById('modal').classList.add('show');
   document.getElementById('modal-input').focus();
 }
 
-function closeModal() {
-  document.getElementById('modal').classList.remove('show');
-  editTarget = null;
+function closeModal() { document.getElementById('modal').classList.remove('show'); editTarget=null; }
+
+async function saveSlot() {
+  if(!editTarget) return;
+  const {dateKey,slotIndex}=editTarget;
+  const val=document.getElementById('modal-input').value.trim();
+  scheduleData[dateKey][slotIndex].names=val;
+  closeModal(); renderCalendar(); renderStaff();
+  await saveToSupabase(dateKey,slotIndex,val);
 }
 
-function saveSlot() {
-  if (!editTarget) return;
-  const { dateKey, slotIndex } = editTarget;
-  const val = document.getElementById('modal-input').value.trim();
-  scheduleData[dateKey][slotIndex].names = val;
-  closeModal();
-  renderCalendar();
-  renderStaff();
+async function clearSlot() {
+  if(!editTarget) return;
+  const {dateKey,slotIndex}=editTarget;
+  scheduleData[dateKey][slotIndex].names='';
+  closeModal(); renderCalendar(); renderStaff();
+  await saveToSupabase(dateKey,slotIndex,'');
 }
 
-function clearSlot() {
-  if (!editTarget) return;
-  const { dateKey, slotIndex } = editTarget;
-  scheduleData[dateKey][slotIndex].names = '';
-  closeModal();
-  renderCalendar();
-  renderStaff();
-}
+document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+document.getElementById('modal-input').addEventListener('keydown',function(e){if(e.key==='Enter')saveSlot();});
 
-// モーダル外クリックで閉じる
-document.getElementById('modal').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
-});
-
-// Enterで保存
-document.getElementById('modal-input').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') saveSlot();
-});
-
-// ===== タブ切り替え =====
-function showTab(tab) {
-  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(el => { el.classList.remove('active'); el.classList.add('inactive'); });
+function showTab(tab,e) {
+  document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el=>{el.classList.remove('active');el.classList.add('inactive');});
   document.getElementById(`tab-${tab}`).classList.add('active');
-  event.target.classList.remove('inactive');
-  event.target.classList.add('active');
-  if (tab === 'staff') renderStaff();
+  if(e&&e.target){e.target.classList.remove('inactive');e.target.classList.add('active');}
+  if(tab==='staff') renderStaff();
 }
 
-// ===== 初期化 =====
-renderCalendar();
-renderStaff();
+loadFromSupabase();
 </script>
 </body>
 </html>
